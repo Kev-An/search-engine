@@ -1,0 +1,44 @@
+#root{
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.yt-button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+  }
+  .yt-button:hover {
+    background-color: #940404;
+  }
+  .articles-button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+    background-color: #006eff;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+  }
+  .articles-button:hover {
+    background-color: #043e94;
+  }
+
+  .pubmed-button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+    background-color: #9644dd;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+  }
+  .pubmed-button:hover {
+    background-color: #5a0494;
+  }
+  
