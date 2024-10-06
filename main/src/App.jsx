@@ -31,7 +31,7 @@ const App = () => {
               className="yt-button"
               onClick={() => showComponent("youtube")}
             >
-              Search on Youtube
+              Search on YouTube
             </button>
             <button
               className="pubmed-button"

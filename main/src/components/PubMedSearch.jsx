@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import styles from "./YoutubeSearch.module.css"; 
-
-const YouTubeSearch = () => {
+import styles from "./PubMedSearch.module.css"; 
+const PubMedSearch = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [sortBy, setSortBy] = useState("relevance");
@@ -11,39 +10,51 @@ const YouTubeSearch = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
 
-    const apiKey = "AIzaSyDsRYfJO5vyXf3zY_pUEbiMSZr6G5kpcsQ"; 
-    const url = "https://www.googleapis.com/youtube/v3/search";
-
+    const url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
     const params = {
-      key: apiKey,
-      q: query,
-      part: "snippet",
-      maxResults: 25,
-      type: "video",
+      db: "pubmed",
+      term: query,
+      retmax: 25,
+      retmode: "json",
     };
 
     if (sortBy === "date") {
-      params.order = "date";
+      params.sort = "pub+date";
     }
 
     try {
       const response = await axios.get(url, { params });
-      setResults(response.data.items);
+      const idList = response.data.esearchresult.idlist;
+
+      if (idList.length > 0) {
+        const summaryUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi";
+        const summaryParams = {
+          db: "pubmed",
+          id: idList.join(","),
+          retmode: "json",
+        };
+
+        const summaryResponse = await axios.get(summaryUrl, { params: summaryParams });
+        setResults(Object.values(summaryResponse.data.result));
+      } else {
+        setResults([]);
+      }
     } catch (error) {
-      console.error("Error fetching data from YouTube API:", error);
+      console.error("Error fetching data from PubMed API:", error);
     }
   };
 
   return (
-    <div>
+    <div className={styles.container}>
       <form onSubmit={handleSearch}>
         <input
+          className={styles.input}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search YouTube..."
+          placeholder="Search PubMed articles..."
         />
-        <button type="submit">Search</button>
+        <button className={styles.button} type="submit">Search</button>
         <select 
           value={sortBy} 
           onChange={(e) => setSortBy(e.target.value)}
@@ -54,25 +65,24 @@ const YouTubeSearch = () => {
         </select>
       </form>
       <ul>
-        {results &&
-          results.map((item) => (
+        {results && results.map((item) => (
+          item.uid && (
             <motion.li 
-              key={item.id.videoId}
+              key={item.uid} 
+              className={styles.item}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h3>{item.snippet.title}</h3>
-              <p>{item.snippet.description}</p>
-              <img src={item.snippet.thumbnails.default.url} alt={item.snippet.title} />
-              <a href={`https://www.youtube.com/watch?v=${item.id.videoId}`} target="_blank" rel="noopener noreferrer">
-                Watch on YouTube
-              </a>
+              <h3>{item.title}</h3>
+              <p>{item.source}</p>
+              <p>{item.pubdate}</p>
+              <a href={`https://pubmed.ncbi.nlm.nih.gov/${item.uid}`} target="_blank" rel="noopener noreferrer">View on PubMed</a>
             </motion.li>
-          ))}
+          )
+        ))}
       </ul>
     </div>
   );
 };
-
-export default YouTubeSearch;
+export default PubMedSearch;
